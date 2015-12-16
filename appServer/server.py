@@ -23,35 +23,61 @@ i=0
 
 @bottle.post('/newNode')
 def insert_entry():
-    postdata = request.body.read()
-    print postdata #this goes to log file only, not to client
-    name,location=postdata.split("=",1)
-    pwd="pwd"+name+location
-    cnx=mysql.connector.connect(user="ideate",password='password',database='one')
-    cursor=cnx.cursor()
-    try:
-        add_entry=("INSERT INTO data (name,location,pwd) VALUES (%s,%s,%s)")
-	entry_data=(name,location,pwd)
-	cursor.execute(add_entry,entry_data)
-	cnx.commit()
-	cursor.close()
-	cnx.close()
+	postdata = request.body.read()
+	print postdata #this goes to log file only, not to client
+    	name,location=postdata.split("=",1)
+	pwd="pwd"+name+location
 
-	#1. get uid
-	#add entries into secrets file and conf file
-	add_new(uid, pwd)
-	return "1"
+	#encrption
+	file=open("../edgeDevice/app_client/keys_client.txt","r")
+	public_str=file.read()
+	file.close()
+	public_key=RSA.importKey(public_str)
+	enc_data=public_key.encrypt(pwd, 32)
+
+	#database
+    	cnx=mysql.connector.connect(user="ideate",password='password',database='one')
+    	cursor=cnx.cursor()
+    	try:
+	
+        	add_entry=("INSERT INTO data (name,location,pwd) VALUES (%s,%s,%s)")
+		entry_data=(name,location,pwd)
+		cursor.execute(add_entry,entry_data)
+		cursor.execute("select uid from data where pwd='"+pwd+"'")
+		uid=cursor.fetchone()
+		print uid
+	    	cursor.close()
+		cnx.commit()
+    	    	cnx.close()
+		# concat uid to enc_pwd
+		#1. get uid
+		#add entries into secrets file and conf file
+		add_new(uid, pwd)
+		return enc_data
 		
-    except:
-        print ("Error inserting post")
-	return "0"
+    	except:
+        	print ("Error inserting post")
+		return 0
 
 
 
 @bottle.post('/login') 
 def do_login(): 
+	random_num1=Random.new().read
+	keys1=RSA.generate(1024,random_num1)
+	public_key1=keys1.publickey()
+	
+	#creating server keys
+	file=open("keys_server.txt","w+")
+	file.write(public_key1.exportKey())
+	file.close()
+	#reading encrypted data from client 
 	postdata=request.body.read()
-	uid,pwd=postdata.split("=",1)
+	uid,enc_pwd=postdata.split("=",1)
+	#decrypting pwd
+	pwd=keys1.decrypt(enc_pwd)
+	
+	#database
 	print uid+" "+pwd
 	cnx=mysql.connector.connect(user="ideate",password='password',database='one')
     	cursor=cnx.cursor()
