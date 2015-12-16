@@ -4,21 +4,20 @@ from os import fork
 from time import sleep
 import httplib, urllib
 from os import path
-from client import first_sync(), sync()
 from subprocess import Popen
 
-class App1():
-	def __init__(self):
-		t=3	#time to get new policy
-		dt=0	#set in getPolicy()
-		bw=0 	#set in getPolicy()
-		uid=""	#extract from auth.txt, get from server
-		pwd=""	#extract from auth.txt, get from server
-		ip=""	#extract from server.txt
-		wd=""
-		uname=""
-		loc=""
-	
+class App1():		
+	t=3	#time to get new policy
+	dt=0	#set in getPolicy()
+	bw=0 	#set in getPolicy()
+	uid=""	#extract from auth.txt, get from server
+	pwd=""	#extract from auth.txt, get from server
+	ip=""	#extract from server.txt
+	wd=""
+	uname=""
+	loc=""
+
+	def __init__(self):	
 		#get server information
 		server=open("server.txt", "r")
 		line=server.readline()
@@ -29,11 +28,6 @@ class App1():
 		wd=check_output("pwd")
 		
 		#get parameters of client 
-		params=getParams()
-		uname=params[0]
-		loc=params[1]
-		
-	def getParams():
 		params=["", ""]
 		info=open("info.txt", "r")	
 		for line in info:
@@ -42,9 +36,10 @@ class App1():
 				params[0]=value
 			else if key=="loc":
 				params[1]=value
-		policy.close()
-	
-	def setParams(params):
+		info.close()
+		uname=params[0]
+		loc=params[1]
+
 
 	def getPolicy():		
 		#1
@@ -58,7 +53,7 @@ class App1():
 		policy.write(line)
 		policy.close()
 
-	def initialize():
+	def initialize(self):
 		
 		#3
 		#check where to use in following code.
@@ -72,9 +67,9 @@ class App1():
 			#4
 			#check where to use in following code.
 
-			params = urllib.urlencode({1: "pwdavanztipune12"})
+			params = urllib.urlencode({uid:pwd})
 			headers = {"Content-type": "appication/x-www-form-urlencoded", "Accept": "text/plain"}
-			conn = httplib.HTTPConnection("localhost", 8080)
+			conn = httplib.HTTPConnection(self.ip, 8080)
 			conn.request("POST","/login",params ,headers)
 			response=conn.getresponse()
 			
@@ -88,9 +83,9 @@ class App1():
 				return 0
 		else:
 		#registration		
-			params = urllib.urlencode({'avanti': 'pune'})
+			params = urllib.urlencode({uid: loc})
 			headers = {"Content-type": "appication/x-www-form-urlencoded", "Accept": "text/plain"}
-			conn = httplib.HTTPConnection("localhost", 8080)
+			conn = httplib.HTTPConnection(self.ip, 8080)
 			conn.request("POST", "/newNode", params, headers)
 			response = conn.getresponse()
 			print response.status, response.reason
