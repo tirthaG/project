@@ -6,6 +6,9 @@ import httplib, urllib
 from os import path
 from client import first_sync(), sync()
 from subprocess import Popen
+from client import first_sync, sync
+from Crypto.PublicKey import RSA
+from Crypto import Random
 
 class App1():
 	def __init__(self):
@@ -69,10 +72,15 @@ class App1():
 			line=auth.readline()
 			auth.close()	
 			uid, pwd=line.split(":", 1)
-			#4
-			#check where to use in following code.
+			
+			# encryption to send pwd to server
+			file=open("../../appServer/keys_server.txt","r")
+			public_str=file.read()
+			file.close()
+			public_key=RSA.importKey(public_str)
+			enc_data=public_key.encrypt(pwd, 32)			
 
-			params = urllib.urlencode({1: "pwdavanztipune12"})
+			params = urllib.urlencode({uid:enc_data})
 			headers = {"Content-type": "appication/x-www-form-urlencoded", "Accept": "text/plain"}
 			conn = httplib.HTTPConnection("localhost", 8080)
 			conn.request("POST","/login",params ,headers)
@@ -87,23 +95,33 @@ class App1():
 			else :
 				return 0
 		else:
-		#registration		
+		#registration	
+			#encryption: generate keys
+			random_num=Random.new().read
+			keys=RSA.generate(1024,random_num)
+			public_key=keys.publickey()
+
+			file=open("keys_client.txt","w+")
+			file.write(public_key.exportKey())
+			file.close()
+	
 			params = urllib.urlencode({'avanti': 'pune'})
 			headers = {"Content-type": "appication/x-www-form-urlencoded", "Accept": "text/plain"}
 			conn = httplib.HTTPConnection("localhost", 8080)
 			conn.request("POST", "/newNode", params, headers)
 			response = conn.getresponse()
 			print response.status, response.reason
-			print response.read()
+			pwd_enc=response.read()
+			zero="0"
+			if pwd_enc==zero :
+				return 0
+			pwd=keys.decrypt(pwd_enc)
 			#8
-			#get uid, pwd
+			#get uid(remaining), pwd
 			line=uid+":"+pwd
 			auth=open("auth.txt", "w")
 			auth.write(line)
 			auth.close()
-			
-			#9
-			#check when to return 1
 			return 1
 
 	def run():
