@@ -13,50 +13,56 @@ from os import fork
 from time import sleep
 import httplib, urllib
 from os import path
+<<<<<<< HEAD
 from client import first_sync(), sync()
 from subprocess import Popen
 from client import first_sync, sync
 from Crypto.PublicKey import RSA
 from Crypto import Random
+=======
+from subprocess import Popen, check_output
+>>>>>>> 5074d0d6016ef4e89adc6209c3628c6c37fb76dc
 
 class Admin():
+
+	t=0	# time to get new policy
+	uid=""	#extract from auth.txt, get from server
+	pwd=""	#extract from auth.txt, get from server
+	apps=[]	#list of apps, appid:serverip
+	ip=""	#extract from server.txt
+	app_handle=[]	#just in case
+	i=0;		#counter
+	uname=""
+	loc=""
+
 	def __init__(self):
-		t=0	# time to get new policy
-		uid=""	#extract from auth.txt, get from server
-		pwd=""	#extract from auth.txt, get from server
-		apps=[]	#list of apps, appid:serverip
-		ip=""	#extract from server.txt
-		app_handle=[]	#just in case
-		i=0;		#counter
-		uname=""
-		loc=""
+
 		
 		#get server information
 		server=open("server.txt", "r")
 		line=server.readline()
 		server.close()	
 		trash, ip=line.split(":", 1)
+		print ip
 
 		#get working directory
 		wd=check_output("pwd")
 		
 		#get parameters of client 
-		params=getParams()
-		uname=params[0]
-		loc=params[1]
-
-	def getParams():
 		params=["", ""]
 		info=open("info.txt", "r")	
 		for line in info:
 			key, val=line.split(":", 1)
 			if key=="uname":
-				params[0]=value
-			else if key=="loc":
-				params[1]=value
+				params[0]=val
+			elif key=="loc":
+				params[1]=val
 		info.close()
-	
+		uname=params[0]
+		loc=params[1]
+
 	def setParams(params):
+		return
 
 	def getPolicy():
 		#1
@@ -75,7 +81,7 @@ class Admin():
 		#key:value  appId:serverIP
 		return new	
 
-	def initialize():
+	def initialize(self):
 		
 		#login
 		if path.isfile("auth.txt"): 
@@ -94,7 +100,7 @@ class Admin():
 
 			params = urllib.urlencode({uid:enc_data})
 			headers = {"Content-type": "appication/x-www-form-urlencoded", "Accept": "text/plain"}
-			conn = httplib.HTTPConnection(ip, 8080)
+			conn = httplib.HTTPConnection(self.ip, 8080)
 			conn.request("POST","/login",params ,headers)
 			response=conn.getresponse()
 			
@@ -120,7 +126,7 @@ class Admin():
 			
 			params = urllib.urlencode({uname: loc})
 			headers = {"Content-type": "appication/x-www-form-urlencoded", "Accept": "text/plain"}
-			conn = httplib.HTTPConnection(ip, 8080)
+			conn = httplib.HTTPConnection(self.ip, 8080)
 			conn.request("POST", "/newNode", params, headers)
 			response = conn.getresponse()
 			print response.status, response.reason
@@ -140,7 +146,7 @@ class Admin():
 		# download other files in the predefined location
 		# how?
 		# 5
-		for app in apps
+		for app in apps:
 			service="App"+app[0]+".service"
 			trash=Popen("systemctl", "enable", service)
 			app_handle[i]=Popen("systemctl", "start", service)
@@ -158,7 +164,7 @@ class Admin():
 		apps=getApps()
 		startApp()
 		pid=fork()
-		if pid==0
+		if pid==0:
 			while True:
 				getPolicy()
 				new=getApps()
@@ -171,13 +177,14 @@ class Admin():
 						if app[0]==app_old[0]:
 							flag=1
 							break
-					if !flag:
+					if not flag:
 						apps.append(app)
 						startApp(app)
 				sleep(t)
 					
 admin=Admin()
 ok=admin.initialize()
+
 if ok:
 	admin.run()
 else:

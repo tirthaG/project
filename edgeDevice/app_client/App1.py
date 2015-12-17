@@ -4,24 +4,23 @@ from os import fork
 from time import sleep
 import httplib, urllib
 from os import path
-from client import first_sync(), sync()
 from subprocess import Popen
 from client import first_sync, sync
 from Crypto.PublicKey import RSA
 from Crypto import Random
 
-class App1():
-	def __init__(self):
-		t=3	#time to get new policy
-		dt=0	#set in getPolicy()
-		bw=0 	#set in getPolicy()
-		uid=""	#extract from auth.txt, get from server
-		pwd=""	#extract from auth.txt, get from server
-		ip=""	#extract from server.txt
-		wd=""
-		uname=""
-		loc=""
-	
+class App1():		
+	t=3	#time to get new policy
+	dt=0	#set in getPolicy()
+	bw=0 	#set in getPolicy()
+	uid=""	#extract from auth.txt, get from server
+	pwd=""	#extract from auth.txt, get from server
+	ip=""	#extract from server.txt
+	wd=""
+	uname=""
+	loc=""
+
+	def __init__(self):	
 		#get server information
 		server=open("server.txt", "r")
 		line=server.readline()
@@ -32,11 +31,6 @@ class App1():
 		wd=check_output("pwd")
 		
 		#get parameters of client 
-		params=getParams()
-		uname=params[0]
-		loc=params[1]
-		
-	def getParams():
 		params=["", ""]
 		info=open("info.txt", "r")	
 		for line in info:
@@ -45,9 +39,10 @@ class App1():
 				params[0]=value
 			else if key=="loc":
 				params[1]=value
-		policy.close()
-	
-	def setParams(params):
+		info.close()
+		uname=params[0]
+		loc=params[1]
+
 
 	def getPolicy():		
 		#1
@@ -61,7 +56,7 @@ class App1():
 		policy.write(line)
 		policy.close()
 
-	def initialize():
+	def initialize(self):
 		
 		#3
 		#check where to use in following code.
@@ -81,9 +76,13 @@ class App1():
 			public_key=RSA.importKey(public_str)
 			enc_data=public_key.encrypt(pwd, 32)			
 
+<<<<<<< HEAD
 			params = urllib.urlencode({uid:enc_data})
+=======
+			params = urllib.urlencode({uid:pwd})
+>>>>>>> 5074d0d6016ef4e89adc6209c3628c6c37fb76dc
 			headers = {"Content-type": "appication/x-www-form-urlencoded", "Accept": "text/plain"}
-			conn = httplib.HTTPConnection("localhost", 8080)
+			conn = httplib.HTTPConnection(self.ip, 8080)
 			conn.request("POST","/login",params ,headers)
 			response=conn.getresponse()
 			
@@ -96,6 +95,7 @@ class App1():
 			else :
 				return 0
 		else:
+<<<<<<< HEAD
 		#registration	
 			#encryption: generate keys
 			random_num=Random.new().read
@@ -107,8 +107,12 @@ class App1():
 			file.close()
 	
 			params = urllib.urlencode({'avanti': 'pune'})
+=======
+		#registration		
+			params = urllib.urlencode({uid: loc})
+>>>>>>> 5074d0d6016ef4e89adc6209c3628c6c37fb76dc
 			headers = {"Content-type": "appication/x-www-form-urlencoded", "Accept": "text/plain"}
-			conn = httplib.HTTPConnection("localhost", 8080)
+			conn = httplib.HTTPConnection(self.ip, 8080)
 			conn.request("POST", "/newNode", params, headers)
 			response = conn.getresponse()
 			print response.status, response.reason
