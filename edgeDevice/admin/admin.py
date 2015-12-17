@@ -80,9 +80,10 @@ class Admin():
 		#login
 		if path.isfile("auth.txt"): 
 			auth=open("auth.txt", "r")
-			line=auth.readline()
+			line=auth.read()
 			auth.close()	
-			uid, pwd=line.split(":", 1)
+			uid=line['uid']
+			pwd=line['pwd']
 			
 			# add encryption to send pwd to server
 			file=open("../../serviceServer/keys_server.txt","r")
@@ -123,19 +124,16 @@ class Admin():
 			conn.request("POST", "/newNode", params, headers)
 			response = conn.getresponse()
 			print response.status, response.reason
-			pwd_enc=response.read()
+			enc_data=response.read()
+			dec_data=keys.decrypt(enc_data)
 			zero="0"
-			if pwd_enc=zero:
+			if dec_data=zero:
 				return 0
-			#8
-			#get uid(remaining), pwd
-			line="uid:pwd"
+			print dec_data
+			json_obj=json.loads(dec_data)
 			auth=open("auth.txt", "w")
-			auth.write(line)
+			auth.write(json_obj)
 			auth.close()
-			
-			#9
-			#check when to return 1
 			return 1
 	def startApp():
 		# download appid.service file in correct location

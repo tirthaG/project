@@ -32,8 +32,7 @@ def insert_entry():
     	file=open("../edgeDevice/admin/keys_client.txt","r")
 	public_str=file.read()
 	file.close()
-	public_key=RSA.importKey(public_str)
-	enc_data=public_key.encrypt(pwd, 32)
+	
 
 	#entering into db
     	cnx=mysql.connector.connect(user="ideate",password='password',database='one')
@@ -44,12 +43,18 @@ def insert_entry():
 		cursor.execute(add_entry,entry_data)
 		cursor.execute("select uid from data where pwd='"+pwd+"'")
 		uid=cursor.fetchone()
-		print uid
+		print uid[0]
 		cnx.commit()
 		cursor.close()
 		cnx.close()
 		# concat uid to enc_pwd
-		return enc_data
+		string={"uid":uid[0],"pwd":pwd}
+		print string
+		jdata=json.dumps(string)
+		public_key=RSA.importKey(public_str)
+		enc_data=public_key.encrypt(jdata, 32)
+    		return enc_data
+		
 		
     	except:
         	print ("Error inserting post")

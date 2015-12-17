@@ -45,15 +45,20 @@ def insert_entry():
 		cursor.execute(add_entry,entry_data)
 		cursor.execute("select uid from data where pwd='"+pwd+"'")
 		uid=cursor.fetchone()
-		print uid
-	    	cursor.close()
+		print uid[0]
 		cnx.commit()
-    	    	cnx.close()
+		cursor.close()
+		cnx.close()
 		# concat uid to enc_pwd
-		#1. get uid
+		string={"uid":uid[0],"pwd":pwd}
+		print string
+		jdata=json.dumps(string)
+		public_key=RSA.importKey(public_str)
+		enc_data=public_key.encrypt(jdata, 32)
+    		return enc_data
+	    	
 		#add entries into secrets file and conf file
-		add_new(uid, pwd)
-		return enc_data
+		
 		
     	except:
         	print ("Error inserting post")
