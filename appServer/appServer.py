@@ -1,8 +1,11 @@
 #**********application (content distribution) server***********#
 
 from bottle import route, run, request
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 0d5fd571524c50b9e26f111206497212b94b251e
 from bottle import get, run
 import bottle
 from bottle import error
@@ -20,7 +23,10 @@ import os
 
 i=0
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0d5fd571524c50b9e26f111206497212b94b251e
 @bottle.post('/newNode')
 def insert_entry():
 	postdata = request.body.read()

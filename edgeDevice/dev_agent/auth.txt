@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 {"pwd": "pwdcocomum", "uid": 120}
+=======
+client1:client1
+>>>>>>> 0d5fd571524c50b9e26f111206497212b94b251e
